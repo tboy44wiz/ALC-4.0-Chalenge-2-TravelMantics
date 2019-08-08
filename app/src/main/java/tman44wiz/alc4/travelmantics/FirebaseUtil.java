@@ -1,9 +1,7 @@
 package tman44wiz.alc4.travelmantics;
 
-import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -56,23 +54,8 @@ public class FirebaseUtil {
             };
             connectStorage();
         }
-        mDeals = new ArrayList<TravelDeal>();
+        mDeals = new ArrayList<>();
         mDatabaseReference = mFirebaseDatabase.getReference().child(ref);
-    }
-
-    private static void signIn() {
-        // Choose authentication providers
-        List<AuthUI.IdpConfig> providers = Arrays.asList(
-                new AuthUI.IdpConfig.EmailBuilder().build(),
-                new AuthUI.IdpConfig.GoogleBuilder().build());
-
-// Create and launch sign-in intent
-        caller.startActivityForResult(
-                AuthUI.getInstance()
-                        .createSignInIntentBuilder()
-                        .setAvailableProviders(providers)
-                        .build(),
-                RC_SIGN_IN);
     }
 
     private static void checkAdmin(String uid) {
@@ -106,6 +89,21 @@ public class FirebaseUtil {
             }
         };
         ref.addChildEventListener(listener);
+    }
+
+    private static void signIn() {
+        // Choose authentication providers
+        List<AuthUI.IdpConfig> providers = Arrays.asList(
+                new AuthUI.IdpConfig.EmailBuilder().build(),
+                new AuthUI.IdpConfig.GoogleBuilder().build());
+
+// Create and launch sign-in intent
+        caller.startActivityForResult(
+                AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setAvailableProviders(providers)
+                        .build(),
+                RC_SIGN_IN);
     }
 
     public static void attachedListener() {

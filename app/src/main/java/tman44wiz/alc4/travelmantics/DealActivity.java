@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -15,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
@@ -117,13 +119,25 @@ public class DealActivity extends AppCompatActivity {
 
         if (requestCode ==PICTURE_RESULT && resultCode == RESULT_OK) {
             Uri imageUri = data.getData();
-            StorageReference ref = FirebaseUtil.mStorageReference.child(imageUri.getLastPathSegment());
-            ref.putFile(imageUri).addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            final StorageReference ref = FirebaseUtil.mStorageReference.child(imageUri.getLastPathSegment());
+
+            ref.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                 @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    String url = taskSnapshot.getStorage().getDownloadUrl().toString();
-                    deal.setImageUrl(url);
-                    showImage(url);
+                public void onComplete(final Task<UploadTask.TaskSnapshot> task) {
+                    String imageName = task.getResult().getStorage().getPath();
+                    Log.d("imageName", imageName);
+                    deal.setImageName(imageName);
+                    if (task.isSuccessful()) {
+                        ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                String downloadUrl = uri.toString();
+                                deal.setImageUrl(downloadUrl);
+                                deal.setImageName(ref.getPath());
+                                showImage(downloadUrl);
+                            }
+                        });
+                    }
                 }
             });
         }
